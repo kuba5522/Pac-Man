@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/cosmos_background"
+    android:keepScreenOn="true"
+    >
+
+    <!-- The primary full-screen view. This can be replaced with whatever view
+         is needed to present your content, e.g. VideoView, SurfaceView,
+         TextureView, etc. -->
+
+
+    <!-- This FrameLayout insets its children based on system windows using
+         android:fitsSystemWindows. -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="196dp"
+        android:layout_marginTop="200dp"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/startbutton"
+            android:layout_width="200dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="30dp"
+            android:background="@drawable/button_background"
+            android:contentDescription="@string/start_button"
+            android:fontFamily="@font/press_start_2p"
+            android:text="@string/start_game"
+            android:textColor="#1C1624"
+            android:onClick="clickStartButton"/>
+
+        <Button
+            android:id="@+id/exitbutton"
+            android:layout_width="200dp"
+            android:layout_height="50dp"
+            android:background="@drawable/button_background"
+            android:fontFamily="@font/press_start_2p"
+            android:onClick="clickExitButton"
+            android:text="@string/exit"
+            android:textColor="#1C1624" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="249dp">
+
+        <TextView
+            android:id="@+id/fullscreen_content"
+            android:layout_width="match_parent"
+            android:layout_height="170dp"
+            android:fontFamily="@font/press_start_2p"
+            android:gravity="bottom"
+            android:keepScreenOn="true"
+            android:text="@string/pacman"
+            android:textAlignment="center"
+            android:textColor="#F5CC00"
+            android:textSize="60sp"
+            android:typeface="monospace" />
+    </FrameLayout>
+
+
+</FrameLayout>

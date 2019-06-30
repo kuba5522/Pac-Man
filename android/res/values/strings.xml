@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Pac-Man</string>
+
+    <string name="title_activity_main">Pac-Man</string>
+    <string name="start_button">Start button</string>
+    <string name="start_game">Start game</string>
+    <string name="exit">Exit</string>
+    <string name="pacman">Pacman</string>
+
+</resources>
