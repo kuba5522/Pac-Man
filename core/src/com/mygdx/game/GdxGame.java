@@ -54,7 +54,6 @@ public class GdxGame extends ApplicationAdapter implements InputProcessor{
 	private static BitmapFont font;
 	private static Random random;
     private static long time = 0;
-    private static long now = 0;
     private FreeTypeFontGenerator generator;
 	private FreeTypeFontGenerator.FreeTypeFontParameter parameter;
 	@Override
@@ -66,10 +65,13 @@ public class GdxGame extends ApplicationAdapter implements InputProcessor{
 		blockSize = camera.viewportWidth / Columns;
 		blockSize2 = blockSize/2;
         packMan = new PackMan ( );
+
         ghosts = new Ghost[4];
-		for (int i=0; i<ghosts.length; i++) {
-			ghosts[i] = new Ghost ();
-		}
+        ghosts[0] = new Ghost (new Texture ( "ghost_yellow.png" ));
+		ghosts[1] = new Ghost (new Texture ( "ghost_blue.png" ));
+		ghosts[2] = new Ghost (new Texture ( "ghost_red.png" ) );
+		ghosts[3] = new Ghost (new Texture ( "ghost_green.png" ) );
+
 		SetStartGhostsPos(ghosts);
 		random = new Random();
 		packMan.SetTextureOpen ();
@@ -89,25 +91,10 @@ public class GdxGame extends ApplicationAdapter implements InputProcessor{
 		}
 	}
 
-	private void SetStartGhostsPos(Ghost[] ghosts) {
-		ghosts[0].SetPositionX ( 45 );
-		ghosts[0].SetPositionY ( 45 );
-
-		ghosts[1].SetPositionX ( 45 );
-		ghosts[1].SetPositionY ( 720 );
-
-		ghosts[2].SetPositionX ( 1350 );
-		ghosts[2].SetPositionY ( 720 );
-
-		ghosts[3].SetPositionX ( 1350 );
-		ghosts[3].SetPositionY ( 45 );
-	}
-
-
 	@Override
 	public void render() {
 		super.render();
-		now = TimeUtils.millis ();
+        long now = TimeUtils.millis ();
 		if(State.Paused == state)
 			time = now;
 		if(State.EndGame == state)
@@ -118,7 +105,7 @@ public class GdxGame extends ApplicationAdapter implements InputProcessor{
 			return;
 		}
 		state = State.Running;
-			if(time + 3000 < now ) {
+			if(time + 3000 < now) {
 				int accelX = ( int ) Gdx.input.getAccelerometerX ();
 				int accelY = ( int ) Gdx.input.getAccelerometerY ();
 
@@ -196,7 +183,7 @@ public class GdxGame extends ApplicationAdapter implements InputProcessor{
 				    ghost.draw ( batch );
 				font.draw ( batch, packMan.GetPoints () + "/"+120, camera.viewportWidth*0.9f, camera.viewportHeight*0.98f );
 				font.draw ( batch,"Current lives: "+packMan.GetCurrentLives (), 10,camera.viewportHeight*0.98f  );
-				font.draw ( batch, (3000-(now-time))/1000+"", camera.viewportWidth/2, camera.viewportHeight/2 );
+				font.draw ( batch, (3000-(now -time))/1000+"", camera.viewportWidth/2, camera.viewportHeight/2 );
 				batch.end ();
 			}
 
@@ -483,6 +470,20 @@ public class GdxGame extends ApplicationAdapter implements InputProcessor{
 		return false;
 	}
 
+	private void SetStartGhostsPos(Ghost[] ghosts) {
+		int x = (int)blockSize;
+		ghosts[0].SetPositionX ( x );
+		ghosts[0].SetPositionY ( x );
+
+		ghosts[1].SetPositionX ( x );
+		ghosts[1].SetPositionY ( ((Rows-2)*x)) ;
+
+		ghosts[2].SetPositionX ( ((Columns-2)*x) );
+		ghosts[2].SetPositionY ( ((Rows-2)*x));
+
+		ghosts[3].SetPositionX ( ((Columns-2)*x) );
+		ghosts[3].SetPositionY ( x );
+	}
 	public enum State{
 		Running, Paused, EndGame
 	}

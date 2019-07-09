@@ -15,8 +15,7 @@ class Ghost extends Sprite {
     private boolean CollisionBottom;
     private int Direction;                  //1-> prawo, 2-> góra, 3-> lewo, 4-> dół
 
-    Ghost() {
-
+    Ghost(Texture texture) {
         CollisionLeft = false;
         CollisionRight = false;
         CollisionTop = false;
@@ -24,14 +23,14 @@ class Ghost extends Sprite {
         Direction = 1;
         PositionX = StartPositionX;
         PositionY = StartPositionY;
-        this.setTexture (  new Texture ( "ghost_yellow.png" ));
+        this.setTexture ( texture );
         this.setRegion ( 0, 0, 600,600);
         setColor(1, 1, 1, 1);
         setSize(600, 600);
         setOrigin(getWidth ()/2, getHeight ()/2);
         setScale ( 0.05f );
-
     }
+
 
     void SetPositionX(int positionX)
     {
@@ -68,4 +67,5 @@ class Ghost extends Sprite {
     void ResetCollision(){ CollisionBottom = false;CollisionTop = false;CollisionLeft = false;CollisionRight =false;}
     void Dispose(){ this.getTexture ().dispose (); }
     void ToStartPos(){PositionX = StartPositionX; PositionY = StartPositionY;}
+
 }
