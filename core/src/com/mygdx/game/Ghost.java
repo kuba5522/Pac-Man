@@ -4,38 +4,28 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 
 
-class PackMan extends Sprite {
-    private Texture textureOpen;
-    private Texture textureClose;
-    private int lives;
+class Ghost extends Sprite {
     private int PositionX;
     private int PositionY;
-    private int StartPositionX = 630;
+    private int StartPositionX = 90;
     private int StartPositionY = 630;
     private boolean CollisionLeft;
     private boolean CollisionRight;
     private boolean CollisionTop;
     private boolean CollisionBottom;
     private int Direction;                  //1-> prawo, 2-> góra, 3-> lewo, 4-> dół
-    private int Points;
 
+    Ghost() {
 
-
-    PackMan(){
-        textureOpen = new Texture ( "packman.png" );
-        textureClose =  new Texture ( "packmanclose.png" );
         CollisionLeft = false;
         CollisionRight = false;
         CollisionTop = false;
         CollisionBottom = false;
         Direction = 1;
-        lives = 3;
-        Points = 0;
-        ToStartPos ();
         PositionX = StartPositionX;
         PositionY = StartPositionY;
-        setTexture (  new Texture ( "packman.png" ));
-        setRegion ( 0, 0, 600,600);
+        this.setTexture (  new Texture ( "ghost_yellow.png" ));
+        this.setRegion ( 0, 0, 600,600);
         setColor(1, 1, 1, 1);
         setSize(600, 600);
         setOrigin(getWidth ()/2, getHeight ()/2);
@@ -76,19 +66,6 @@ class PackMan extends Sprite {
     void SetDirection(int direction){Direction = direction;}
     int GetDirection(){ return Direction;}
     void ResetCollision(){ CollisionBottom = false;CollisionTop = false;CollisionLeft = false;CollisionRight =false;}
-    void ClearPoints(){ Points = 0;}
-    void AddPoint(){Points += 1; }
-    int GetPoints(){ return Points;}
-    void SetTextureClose(){ setTexture ( textureClose); }
-    void SetTextureOpen(){ setTexture ( textureOpen );}
-    void Dispose(){this.getTexture ().dispose ();}
-    int GetCurrentLives(){return lives;}
-    void DecreaseLives(){lives -= 1;}
+    void Dispose(){ this.getTexture ().dispose (); }
     void ToStartPos(){PositionX = StartPositionX; PositionY = StartPositionY;}
-
-
-
-
-
-
 }
