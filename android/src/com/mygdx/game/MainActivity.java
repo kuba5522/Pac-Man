@@ -9,7 +9,7 @@ import android.view.View;
 
 
 
-class MainActivity extends AppCompatActivity
+public class MainActivity extends AppCompatActivity
 {
     private static final int UI_ANIMATION_DELAY = 300;
     private final Handler mHideHandler = new Handler ();

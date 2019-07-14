@@ -16,12 +16,12 @@ import java.util.Random;
 
 
 
-public class GdxGame extends ApplicationAdapter implements InputProcessor{
+public class GdxGame extends ApplicationAdapter{
 	private static final int Columns = 32;
 	private static final int Rows = 18;
 	private static Sprite[][] blocks = new Sprite[32][18];
 	private static byte[][] level = {{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-							  		 {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0},
+							  		 {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0},
 							  		 {0,1,0,0,1,0,0,1,0,0,0,1,0,0,0,0,0,1,0,1,0,0,0,0,0,1,0,1,0,0,1,0},
 									 {0,1,0,0,1,1,0,1,0,0,0,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,0,1,0,0,1,0},
 							 	 	 {0,1,1,1,0,1,0,1,0,0,0,1,0,1,0,0,0,1,0,1,0,0,1,0,0,1,0,1,1,1,1,0},
@@ -36,7 +36,7 @@ public class GdxGame extends ApplicationAdapter implements InputProcessor{
 									 {0,1,1,1,0,1,0,1,0,0,0,1,0,1,0,0,0,1,0,1,0,0,1,0,0,1,0,1,1,1,1,0},
 									 {0,1,0,0,1,1,0,1,0,0,0,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,0,1,0,0,1,0},
 									 {0,1,0,0,1,0,0,1,0,0,0,1,0,0,0,0,0,1,0,1,0,0,0,0,0,1,0,1,0,0,1,0},
-									 {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0},
+									 {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0},
 							  		 {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}};
 
 
@@ -56,6 +56,7 @@ public class GdxGame extends ApplicationAdapter implements InputProcessor{
     private static long time = 0;
     private FreeTypeFontGenerator generator;
 	private FreeTypeFontGenerator.FreeTypeFontParameter parameter;
+	private int PointsToCollect;
 	@Override
 	public void create() {
 		packMan = new PackMan ();
@@ -71,7 +72,7 @@ public class GdxGame extends ApplicationAdapter implements InputProcessor{
 		ghosts[1] = new Ghost (new Texture ( "ghost_blue.png" ));
 		ghosts[2] = new Ghost (new Texture ( "ghost_red.png" ) );
 		ghosts[3] = new Ghost (new Texture ( "ghost_green.png" ) );
-
+		PointsToCollect = Points();
 		SetStartGhostsPos(ghosts);
 		random = new Random();
 		packMan.SetTextureOpen ();
@@ -79,6 +80,7 @@ public class GdxGame extends ApplicationAdapter implements InputProcessor{
 		parameter = new FreeTypeFontGenerator.FreeTypeFontParameter ();
 		parameter.characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.!:/";
 		parameter.size = 15;
+		state = State.Running;
 		font = generator.generateFont(parameter);
 		for (int i = 0; i < Columns; i++) {
 			for (int j = 0; j < Rows; j++) {
@@ -91,21 +93,57 @@ public class GdxGame extends ApplicationAdapter implements InputProcessor{
 		}
 	}
 
+	private int Points() {
+		int sum = 0;
+		for (int i =0; i < 32 ; i++)
+		{
+			for (int j = 0; j < 18; j++)
+			{
+				if(level[j][i] == 1 )
+					sum += 1;
+			}
+		}
+		return sum;
+	}
+
 	@Override
 	public void render() {
 		super.render();
         long now = TimeUtils.millis ();
-		if(State.Paused == state)
+		if(State.Paused == state) {
 			time = now;
+			SetStartGhostsPos ( ghosts );
+            if(packMan.GetCurrentLives () == 0)
+                state = State.EndGame;
+            else
+                state = State.Running;
+		}
 		if(State.EndGame == state)
 		{
 			batch.begin ();
+			drawGame ();
 			font.draw ( batch, "GAME OVER", (camera.viewportWidth/2)*0.9f, camera.viewportHeight/2 );
 			batch.end ();
+            if(time + 3000 < now)
+                Gdx.app.exit ();
+
+		}
+		if(State.Win == state)
+		{
+			batch.begin ();
+			drawGame ();
+			font.draw ( batch, "YOU WIN", (camera.viewportWidth/2)*0.9f, camera.viewportHeight/2 );
+			batch.end ();
+			if(time + 3000 < now)
+				Gdx.app.exit ();
 			return;
 		}
-		state = State.Running;
-			if(time + 3000 < now) {
+		if(packMan.GetPoints () == PointsToCollect ) {
+			time = now;
+			state = State.Win;
+		}
+		if(state == State.Running ) {
+			if (time + 3000 < now) {
 				int accelX = ( int ) Gdx.input.getAccelerometerX ();
 				int accelY = ( int ) Gdx.input.getAccelerometerY ();
 
@@ -124,8 +162,8 @@ public class GdxGame extends ApplicationAdapter implements InputProcessor{
 					ay = accelY;
 					packMan.SetTextureClose ();
 					CollectPoint ();
-                    for (Ghost ghost: ghosts)
-					    CheckGhostCollision (ghost);
+					for (Ghost ghost : ghosts)
+						CheckGhostCollision ( ghost );
 					packMan.ResetCollision ();
 					CheckCollisionPackman ( packMan );
 					MoveWithDirectionChange ( accelX, accelY );
@@ -133,17 +171,17 @@ public class GdxGame extends ApplicationAdapter implements InputProcessor{
 				}
 
 				if (ghosts[0].GetPositionX () % blockSize == 0 && ghosts[0].GetPositionY () % blockSize == 0) {
-                    for (Ghost ghost: ghosts) {
-                        ghost.ResetCollision ();
-                        CheckCollisionGhost ( ghost );
-                        MoveGhostWithDirectionChange ( ghost, packMan.GetPositionX (), packMan.GetPositionY () );
-                    }
+					for (Ghost ghost : ghosts) {
+						ghost.ResetCollision ();
+						CheckCollisionGhost ( ghost );
+						MoveGhostWithDirectionChange ( ghost, packMan.GetPositionX (), packMan.GetPositionY () );
+					}
 
 				}
-                for (Ghost ghost: ghosts) {
-                    ghost.setCenter ( ghost.GetPositionX () + blockSize2, ghost.GetPositionY () + blockSize2 );
-                    ghost.draw ( batch );
-                }
+				for (Ghost ghost : ghosts) {
+					ghost.setCenter ( ghost.GetPositionX () + blockSize2, ghost.GetPositionY () + blockSize2 );
+					ghost.draw ( batch );
+				}
 				packMan.setCenter ( packMan.GetPositionX () + blockSize2, packMan.GetPositionY () + blockSize2 );
 
 
@@ -152,60 +190,47 @@ public class GdxGame extends ApplicationAdapter implements InputProcessor{
 
 				if (now - lastSpawn > Time_delay) {
 					MovePackman ( packMan, ax, ay );
-                    for (Ghost ghost: ghosts) {
-                        MoveGhost ( ghost );
-                        ghost.draw ( batch );
-                    }
+					for (Ghost ghost : ghosts) {
+						MoveGhost ( ghost );
+						ghost.draw ( batch );
+					}
 					packMan.draw ( batch );
 					packMan.SetTextureOpen ();
 					lastSpawn = now;
 				}
-			/*
-			if (State.Paused == state)
-			{
-				font.draw ( batch, "sdadasdas", 500, 500 );
+				font.draw ( batch, packMan.GetPoints () + "/" + PointsToCollect, camera.viewportWidth * 0.9f, camera.viewportHeight * 0.98f );
+				font.draw ( batch, "Current lives: " + packMan.GetCurrentLives (), 10, camera.viewportHeight * 0.98f );
+				batch.end ();
+			} else {
 
-			}
-			else
-				font.draw ( batch, "23123213", 500, 500 );
-*/
-				font.draw ( batch, packMan.GetPoints () + "/"+120, camera.viewportWidth*0.9f, camera.viewportHeight*0.98f );
-				font.draw ( batch,"Current lives: "+packMan.GetCurrentLives (), 10, camera.viewportHeight*0.98f  );
-				batch.end ();
-			}
-			else {
-				Gdx.gl.glClearColor ( 0, 0, 0, 1 );
-				Gdx.gl.glClear ( GL20.GL_COLOR_BUFFER_BIT );
 				batch.begin ();
-				drawBoard ( blocks, Columns, Rows, blockSize, batch );
-				packMan.draw ( batch );
-                for (Ghost ghost: ghosts)
-				    ghost.draw ( batch );
-				font.draw ( batch, packMan.GetPoints () + "/"+120, camera.viewportWidth*0.9f, camera.viewportHeight*0.98f );
-				font.draw ( batch,"Current lives: "+packMan.GetCurrentLives (), 10,camera.viewportHeight*0.98f  );
-				font.draw ( batch, (3000-(now -time))/1000+"", camera.viewportWidth/2, camera.viewportHeight/2 );
+				drawGame ();
+				font.draw ( batch, (3000 - (now - time)) / 1000 + "", camera.viewportWidth / 2, camera.viewportHeight / 2 );
 				batch.end ();
 			}
+		}
 
 	}
 
-	private void CheckGhostCollision(Ghost ghost) {
+    private void drawGame() {
+        Gdx.gl.glClearColor ( 0, 0, 0, 1 );
+        Gdx.gl.glClear ( GL20.GL_COLOR_BUFFER_BIT );
+        drawBoard ( blocks, Columns, Rows, blockSize, batch );
+        packMan.draw ( batch );
+        for (Ghost ghost: ghosts)
+            ghost.draw ( batch );
+        font.draw ( batch, packMan.GetPoints () + "/"+120, camera.viewportWidth*0.9f, camera.viewportHeight*0.98f );
+        font.draw ( batch,"Current lives: "+packMan.GetCurrentLives (), 10,camera.viewportHeight*0.98f  );
+
+    }
+
+    private void CheckGhostCollision(Ghost ghost) {
             if (packMan.GetPositionX () == ghost.GetPositionX () && packMan.GetPositionY () == ghost.GetPositionY ()) {
                 packMan.DecreaseLives ();
                 packMan.ToStartPos ();
                 ghost.ToStartPos ();
                 state = State.Paused;
-                CheckLose ();
             }
-
-	}
-
-	private void CheckLose() {
-		if(packMan.GetCurrentLives () == 0)
-		{
-			state = State.EndGame;
-		}
-
 	}
 
 	private void MoveGhost(Ghost ghost) {
@@ -321,6 +346,12 @@ public class GdxGame extends ApplicationAdapter implements InputProcessor{
 			packMan.AddPoint ();
 			blocks[x][y].setColor ( 0,0,0,1 );
 		}
+		if(level[17-(17-y)][x] == 3)
+		{
+			packMan.SetAngryMode ();
+			packMan.AddPoint ();
+			blocks[x][y].setColor ( 0,0,0,1 );
+		}
 
 	}
 
@@ -385,7 +416,7 @@ public class GdxGame extends ApplicationAdapter implements InputProcessor{
 
     private void CheckCollisionGhost(Ghost ghost) {
         int x = Math.round ( ghost.GetPositionX ()/blockSize );
-        int y =Math.round( ghost.GetPositionY ()/blockSize);
+        int y = Math.round( ghost.GetPositionY ()/blockSize);
 
         if ( level[17-(17-y)][x+1] == 0)
             ghost.CollisionRight ();
@@ -429,46 +460,6 @@ public class GdxGame extends ApplicationAdapter implements InputProcessor{
 		}
 	}
 
-	@Override
-	public boolean keyDown(int keycode) {
-		return false;
-	}
-
-	@Override
-	public boolean keyUp(int keycode) {
-		return false;
-	}
-
-	@Override
-	public boolean keyTyped(char character) {
-		return false;
-	}
-
-	@Override
-	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-	    state = State.Paused;
-		return true;
-	}
-
-	@Override
-	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		return false;
-	}
-
-	@Override
-	public boolean touchDragged(int screenX, int screenY, int pointer) {
-		return false;
-	}
-
-	@Override
-	public boolean mouseMoved(int screenX, int screenY) {
-		return false;
-	}
-
-	@Override
-	public boolean scrolled(int amount) {
-		return false;
-	}
 
 	private void SetStartGhostsPos(Ghost[] ghosts) {
 		int x = (int)blockSize;
@@ -485,7 +476,7 @@ public class GdxGame extends ApplicationAdapter implements InputProcessor{
 		ghosts[3].SetPositionY ( x );
 	}
 	public enum State{
-		Running, Paused, EndGame
+		Running, Paused, EndGame, Win
 	}
 
 }

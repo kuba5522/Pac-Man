@@ -18,6 +18,7 @@ class PackMan extends Sprite {
     private boolean CollisionBottom;
     private int Direction;                  //1-> prawo, 2-> góra, 3-> lewo, 4-> dół
     private int Points;
+    private boolean Angry;
 
 
 
@@ -34,6 +35,7 @@ class PackMan extends Sprite {
         ToStartPos ();
         PositionX = StartPositionX;
         PositionY = StartPositionY;
+        Angry = false;
         setTexture (  new Texture ( "packman.png" ));
         setRegion ( 0, 0, 600,600);
         setColor(1, 1, 1, 1);
@@ -85,6 +87,9 @@ class PackMan extends Sprite {
     int GetCurrentLives(){return lives;}
     void DecreaseLives(){lives -= 1;}
     void ToStartPos(){PositionX = StartPositionX; PositionY = StartPositionY;}
+    void SetAngryMode(){Angry = !Angry;}
+    boolean GetAngryMode(){return Angry;}
+
 
 
 
